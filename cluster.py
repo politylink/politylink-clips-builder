@@ -15,16 +15,28 @@ class TokenFinder:
         self.automaton.make_automaton()
 
         self.index_ = defaultdict(lambda: defaultdict(list))  # key1: token, key2: speech id, val: list of (start, end)
+        self.token_index = defaultdict(set)  # key: token, val: set of speech ids
+        self.speech_index = defaultdict(set)  # key: speech_id, val: set of tokens
 
     def index(self, id_, text):
         for last, token in self.automaton.iter(text):
             end = last + 1
             start = end - len(token)
             assert text[start:end] == token
-            self.index_[token][id_].append((start, end))
 
-    def find(self, token, id_):
-        return self.index_[token][id_]
+            self.index_[token][id_].append((start, end))
+            self.token_index[token].update((id_,))
+            self.speech_index[id_].update((token,))
+
+    def find(self, token=None, id_=None):
+        if token is None and id_ is None:
+            raise ValueError('need to specify token or speech id')
+        elif token is None:
+            return self.speech_index[id_]
+        elif id_ is None:
+            return self.token_index[token]
+        else:
+            return self.index_[token][id_]
 
 
 def iter_key_tokens(speech: Speech):
