@@ -3,8 +3,7 @@ import logging
 import pandas as pd
 import spacy
 
-from cluster import TokenFinder
-from utils import load_minutes_record
+from utils import load_minutes_record, TokenFinder
 
 nlp = spacy.load('ja_ginza')
 
@@ -13,7 +12,7 @@ LOGGER = logging.getLogger(__name__)
 
 def to_token_set(doc):
     pos_set = {'ADJ', 'ADV', 'NOUN', 'PROPN'}
-    return set([token.lemma_ for token in doc if token.pos_ in pos_set])
+    return set([token.text for token in doc if token.pos_ in pos_set])
 
 
 def find_best_speech(clip, minutes_record):

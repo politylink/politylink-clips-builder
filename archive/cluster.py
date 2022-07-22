@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import ahocorasick
 import numpy as np
 
-from dao import Speech
+from archive.dao import Speech
 
 
 class TokenFinder:

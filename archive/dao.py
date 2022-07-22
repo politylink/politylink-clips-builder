@@ -99,7 +99,7 @@ def clean_speech_text(text):
 
 
 class MinutesDao:
-    cache_directory = Path('./data/minutes')
+    cache_directory = Path('../data/minutes')
 
     def get(self, ndl_id, cache=True):
         path = self.cache_directory / ndl_id
