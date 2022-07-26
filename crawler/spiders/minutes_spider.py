@@ -30,7 +30,7 @@ class MinutesSpider(scrapy.Spider):
             ndl_id = meeting_record['issueID']
             fp = f'./out/minutes/{ndl_id}.json'
             with open(fp, 'w') as f:
-                json.dump(meeting_record, f, ensure_ascii=False)
+                json.dump(meeting_record, f, ensure_ascii=False, indent=2)
             LOGGER.info(f'saved {fp}')
 
         self.next_pos = response_body['nextRecordPosition']

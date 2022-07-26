@@ -9,7 +9,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 def process(clip):
-    thumb_fp = Path('./out/thumb/{}.jpg'.format(clip['clip_id']))
+    thumb_fp = Path('./out/image/clip/{}.jpg'.format(clip['clip_id']))
     if thumb_fp.exists():
         LOGGER.info(f'skip {thumb_fp}')
         return

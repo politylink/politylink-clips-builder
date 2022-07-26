@@ -10,7 +10,7 @@ LOGGER = getLogger(__name__)
 
 class GclipSpider(scrapy.Spider):
     name = 'gclip'
-    start_urls = ['https://gclip1.grips.ac.jp/video/usage/session/208/house/sangiin']
+    start_urls = ['https://gclip1.grips.ac.jp/video/usage/session/208/house/sangiin?']
 
     def parse(self, response, **kwargs):
         urls = []
@@ -21,7 +21,7 @@ class GclipSpider(scrapy.Spider):
         LOGGER.info(f'scraped {len(urls)} urls')
 
         for url in urls:
-            yield response.follow(url, callback=self.parse_video)
+            yield response.follow(url + '?', callback=self.parse_video)
 
     def parse_video(self, response):
         record = {}
@@ -48,5 +48,5 @@ class GclipSpider(scrapy.Spider):
         gclip_id = Path(urlparse(response.url).path).stem
         fp = f'./out/gclip/{gclip_id}.json'
         with open(fp, 'w') as f:
-            json.dump(record, f, ensure_ascii=False)
+            json.dump(record, f, ensure_ascii=False, indent=2)
         LOGGER.info(f'saved {fp}')

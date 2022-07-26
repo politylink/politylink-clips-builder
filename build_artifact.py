@@ -40,6 +40,7 @@ class Clip:
     meeting: str
     minutes_url: str
     video_url: str
+    category_id: int
     speaker: Optional[Speaker] = field(default=None, metadata=config(exclude=lambda x: x is None))
 
 
@@ -72,7 +73,7 @@ def build_speech(speech_record, thresh):
     )
 
 
-def build_speech_list(minutes_id, speech_id, speech_count=2,  speech_thresh=300):
+def build_speech_list(minutes_id, speech_id, speech_count=2, speech_thresh=300):
     minutes_record = load_minutes_record(minutes_id)
 
     speech_list = []
@@ -80,33 +81,6 @@ def build_speech_list(minutes_id, speech_id, speech_count=2,  speech_thresh=300)
         if idx < len(minutes_record['speechRecord']):
             speech_list.append(build_speech(minutes_record['speechRecord'][idx], speech_thresh))
     return speech_list
-
-
-def build_clip_list():
-    return [
-        {
-            "clipId": 2712,
-            "title": "ＳＡＦの安定供給に係るサプライチェーンの構築に向けた取組状況",
-            "date": "2022/6/2",
-            "house": "参議院",
-            "meeting": "国土交通委員会",
-            "speaker": {
-                "name": "朝日 健太郎",
-                "info": "自民・東京",
-            }
-        },
-        {
-            "clipId": 2719,
-            "title": "国産ＳＡＦの研究開発及び製造に係る今後の見通し",
-            "date": "2022/6/2",
-            "house": "参議院",
-            "meeting": "国土交通委員会",
-            "speaker": {
-                "name": "竹内 真二",
-                "info": "公明・比例",
-            }
-        }
-    ]
 
 
 def build_speaker(name, group, block):
@@ -118,15 +92,24 @@ def build_speaker(name, group, block):
     )
 
 
-def main(clip_fp, minutes_match_fp, gclip_match_fp, member_fp, artifact_direc):
+def main(clip_fp, member_fp, minutes_match_fp, member_match_fp, gclip_match_fp, clip_match_fp, category_match_fp,
+         artifact_direc):
     clip_df = pd.read_csv(clip_fp)
-    minutes_match_df = pd.read_csv(minutes_match_fp)
-    gclip_match_df = pd.read_csv(gclip_match_fp)
     member_df = pd.read_csv(member_fp)
-    clip_df = pd.merge(clip_df, minutes_match_df[['clip_id', 'speech_id']], on='clip_id')
-    clip_df = pd.merge(clip_df, gclip_match_df[['clip_id', 'gclip_id', 'start_msec']], on='clip_id')
-    clip_df = pd.merge(clip_df, member_df[['member_id', 'group', 'block']])
+    member_match_df = pd.read_csv(member_match_fp, dtype={'member_id': 'Int64'}).dropna()
+    minutes_match_df = pd.read_csv(minutes_match_fp, dtype={'speech_id': 'Int64'}).dropna()
+    gclip_match_df = pd.read_csv(gclip_match_fp, dtype={'gclip_id': 'Int64'}).dropna()
+    clip_match_df = pd.read_csv(clip_match_fp, dtype={'member_id': 'Int64'}).dropna()
+    category_match_fp = pd.read_csv(category_match_fp, dtype={'category_id': 'Int64'}).dropna()
 
+    clip_df = pd.merge(clip_df, member_match_df[['clip_id', 'member_id']], on='clip_id')
+    clip_df = pd.merge(clip_df, minutes_match_df[['clip_id', 'minutes_id', 'speech_id']], on='clip_id')
+    clip_df = pd.merge(clip_df, gclip_match_df[['clip_id', 'gclip_id', 'start_msec']], on='clip_id')
+    clip_df = pd.merge(clip_df, clip_match_df[['clip_id', 'clip_id_list']], on='clip_id')
+    clip_df = pd.merge(clip_df, category_match_fp[['clip_id', 'category_id']], on='clip_id')
+    clip_df = pd.merge(clip_df, member_df[['member_id', 'group', 'block']], on='member_id')
+
+    clip_page_map = dict()
     for _, row in tqdm(clip_df.iterrows()):
         minutes_url = 'https://kokkai.ndl.go.jp/txt/{0}/{1}'.format(row['minutes_id'], row['speech_id'])
         video_url = 'https://gclip1.grips.ac.jp/video/video/{0}?t={1}'.format(
@@ -141,19 +124,30 @@ def main(clip_fp, minutes_match_fp, gclip_match_fp, member_fp, artifact_direc):
             meeting=row['meeting'],
             minutes_url=minutes_url,
             video_url=video_url,
+            category_id=row['category_id'],
             speaker=speaker
         )
         speeches = build_speech_list(row['minutes_id'], row['speech_id'])
-        clips = build_clip_list()
 
         clip_page = ClipPage(
             clip=clip,
             speeches=speeches,
-            speakers=[speaker],
-            clips=clips
+            speakers=[speaker]
         )
+        clip_page_map[row['clip_id']] = clip_page
 
-        artifact_fp = Path(artifact_direc) / '{}.json'.format(row['clip_id'])
+    for _, row in clip_df.iterrows():
+        clip_id = row['clip_id']
+        clip_page = clip_page_map[clip_id]
+
+        similar_id_list = map(int, row['clip_id_list'].split(';'))
+        similar_id_list = filter(lambda x: x != clip_id, similar_id_list)
+        similar_clips = list(map(lambda x: clip_page_map[x].clip, similar_id_list))
+
+        clip_page.clips = similar_clips
+
+    for clip_id, clip_page in clip_page_map.items():
+        artifact_fp = Path(artifact_direc) / '{}.json'.format(clip_id)
         with open(artifact_fp, 'w') as f:
             json.dump(clip_page.to_dict(), f, ensure_ascii=False, indent=2)
         LOGGER.debug(f'saved {artifact_fp}')
@@ -163,8 +157,11 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     main(
         clip_fp='./out/clip.csv',
+        member_fp='./out/member.csv',
         minutes_match_fp='./out/clip_minutes.csv',
         gclip_match_fp='./out/clip_gclip.csv',
-        member_fp='./out/member.csv',
+        clip_match_fp='./out/clip_clip.csv',
+        member_match_fp='./out/clip_member.csv',
+        category_match_fp='./out/clip_category.csv',
         artifact_direc='./out/artifact'
     )

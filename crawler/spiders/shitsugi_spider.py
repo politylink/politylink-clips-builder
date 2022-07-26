@@ -3,6 +3,8 @@ from urllib.parse import urljoin
 
 import scrapy
 
+from canonicalize import clean_text
+
 LOGGER = getLogger(__name__)
 
 
@@ -12,10 +14,10 @@ class SangiinShitsugiSpider(scrapy.Spider):
 
     def parse(self, response, **kwargs):
         LOGGER.info(response.url)
-        contents = response.xpath('//div[@id="ContentsBox"]')
+
         urls = []
-        for a in contents.xpath('.//a'):
-            href = a.xpath('./@href').get()
+        for a in response.xpath('//div[@id="ContentsBox"]//a'):
+            href = urljoin(response.url, a.xpath('./@href').get())
             urls.append(href)
         LOGGER.info(f'scraped {len(urls)} committee urls')
 
@@ -24,10 +26,9 @@ class SangiinShitsugiSpider(scrapy.Spider):
 
     def parse_committee(self, response):
         LOGGER.info(response.url)
-        contents = response.xpath('//div[@id="list-style"]')
 
         urls = []
-        for a in contents.xpath('.//a'):
+        for a in response.xpath('//div[@id="list-style"]//a'):
             href = urljoin(response.url, a.xpath('./@href').get())
             urls.append(href)
         LOGGER.info(f'scraped {len(urls)} shitsugi urls')
@@ -38,25 +39,26 @@ class SangiinShitsugiSpider(scrapy.Spider):
     def parse_shitsugi(self, response):
         LOGGER.info(response.url)
 
-        contents = response.xpath('//ul[@class="exp_list_n"]')
         shitsugi_list = []
-        for li in contents.xpath('./li'):
+        for li in response.xpath('//ul[@class="exp_list_n"]/li'):
             name = li.xpath('./text()').get()
-            topics = li.xpath('./ul/li/text()').getall()
-            if topics:  # ignore 参考人
+            topic_list = []
+            for li2 in li.xpath('./ul/li'):
+                topic = ''.join(li2.xpath('.//text()').getall())
+                topic_list.append(topic)
+            if topic_list:  # ignore 参考人
                 shitsugi_list.append({
                     'name': clean_text(name),
-                    'topics': [clean_text(topic) for topic in topics]
+                    'topic_list': [clean_text(topic) for topic in topic_list]
                 })
 
         record = {
             'url': response.url,
             'title': clean_text(response.xpath('//h2/text()').get()),
             'subtitle': clean_text(response.xpath('//h3/text()').get()),
-            'shitsugi': shitsugi_list
+            'shitsugi_list': shitsugi_list
         }
         yield record
 
 
-def clean_text(text):
-    return ' '.join(text.strip().split())
+
