@@ -9,18 +9,28 @@ LOGGER = logging.getLogger(__name__)
 
 
 def process(clip):
-    thumb_fp = Path('./out/image/clip/{}.jpg'.format(clip['clip_id']))
-    if thumb_fp.exists():
-        LOGGER.info(f'skip {thumb_fp}')
+    image_fp = Path('./out/image/clip/{}.jpg'.format(clip['clip_id']))
+    if image_fp.exists():
+        LOGGER.debug(f'skip {image_fp}')
         return
 
-    thumb_msec = clip['start_msec'] + 3000
-    ts_id = thumb_msec // 10000
-    ts_sec = (thumb_msec % 10000) / 1000
+    msec = clip['start_msec'] + 3000  # wait for 3 seconds for camera switch
+    ts_id = msec // 10000  # segment is 10 seconds long
+    ts_sec = (msec % 10000) / 1000
+
+    if ts_sec > 9:  # found problem taking screenshot at the end of segment
+        ts_id += 1
+        ts_sec = 0.5
+
     ts_url = 'https://webtv-vod.live.ipcasting.jp/vod/mp4:{0}.mp4/media_{1}.ts'.format(clip['video_id'], ts_id)
-    cmd = 'ffmpeg -y -ss 00:00:{0:05.2f} -i {1} -vframes 1 {2}'.format(ts_sec, ts_url, thumb_fp)
+    cmd = 'ffmpeg -y -ss 00:00:{0:05.2f} -i {1} -vframes 1 {2}'.format(ts_sec, ts_url, image_fp)
     subprocess.run(cmd.split(), capture_output=True)
-    LOGGER.info(f'saved {thumb_fp}')
+
+    if image_fp.exists():
+        LOGGER.info(f'saved {image_fp}')
+    else:
+        LOGGER.warning('failed to run command:')
+        LOGGER.warning(cmd)
 
 
 def main(gclip_fp, g_match_fp):

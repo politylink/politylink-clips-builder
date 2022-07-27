@@ -92,15 +92,18 @@ def build_speaker(name, group, block):
     )
 
 
-def main(clip_fp, member_fp, minutes_match_fp, member_match_fp, gclip_match_fp, clip_match_fp, category_match_fp,
+def main(clip_fp, member_fp,
+         minutes_match_fp, member_match_fp, gclip_match_fp, clip_match_fp, category_match_fp,
          artifact_direc):
     clip_df = pd.read_csv(clip_fp)
+    LOGGER.info(f'loaded {len(clip_df)} clips')
+
     member_df = pd.read_csv(member_fp)
-    member_match_df = pd.read_csv(member_match_fp, dtype={'member_id': 'Int64'}).dropna()
-    minutes_match_df = pd.read_csv(minutes_match_fp, dtype={'speech_id': 'Int64'}).dropna()
-    gclip_match_df = pd.read_csv(gclip_match_fp, dtype={'gclip_id': 'Int64'}).dropna()
-    clip_match_df = pd.read_csv(clip_match_fp, dtype={'member_id': 'Int64'}).dropna()
-    category_match_fp = pd.read_csv(category_match_fp, dtype={'category_id': 'Int64'}).dropna()
+    member_match_df = pd.read_csv(member_match_fp)
+    minutes_match_df = pd.read_csv(minutes_match_fp)
+    gclip_match_df = pd.read_csv(gclip_match_fp)
+    clip_match_df = pd.read_csv(clip_match_fp)
+    category_match_fp = pd.read_csv(category_match_fp)
 
     clip_df = pd.merge(clip_df, member_match_df[['clip_id', 'member_id']], on='clip_id')
     clip_df = pd.merge(clip_df, minutes_match_df[['clip_id', 'minutes_id', 'speech_id']], on='clip_id')
@@ -108,6 +111,7 @@ def main(clip_fp, member_fp, minutes_match_fp, member_match_fp, gclip_match_fp, 
     clip_df = pd.merge(clip_df, clip_match_df[['clip_id', 'clip_id_list']], on='clip_id')
     clip_df = pd.merge(clip_df, category_match_fp[['clip_id', 'category_id']], on='clip_id')
     clip_df = pd.merge(clip_df, member_df[['member_id', 'group', 'block']], on='member_id')
+    LOGGER.info(f'enriched {len(clip_df)} clips')
 
     clip_page_map = dict()
     for _, row in tqdm(clip_df.iterrows()):
@@ -135,22 +139,27 @@ def main(clip_fp, member_fp, minutes_match_fp, member_match_fp, gclip_match_fp, 
             speakers=[speaker]
         )
         clip_page_map[row['clip_id']] = clip_page
+    LOGGER.info(f'built {len(clip_page_map)} clip pages')
 
     for _, row in clip_df.iterrows():
         clip_id = row['clip_id']
         clip_page = clip_page_map[clip_id]
 
+        similar_clips = []
         similar_id_list = map(int, row['clip_id_list'].split(';'))
-        similar_id_list = filter(lambda x: x != clip_id, similar_id_list)
-        similar_clips = list(map(lambda x: clip_page_map[x].clip, similar_id_list))
+        for similar_id in similar_id_list:
+            if similar_id != clip_id and similar_id in clip_page_map:
+                similar_clips.append(clip_page_map[similar_id].clip)
 
         clip_page.clips = similar_clips
+    LOGGER.info(f'enriched {len(clip_page_map)} with similar clips')
 
     for clip_id, clip_page in clip_page_map.items():
         artifact_fp = Path(artifact_direc) / '{}.json'.format(clip_id)
         with open(artifact_fp, 'w') as f:
             json.dump(clip_page.to_dict(), f, ensure_ascii=False, indent=2)
         LOGGER.debug(f'saved {artifact_fp}')
+    LOGGER.info(f'published {len(clip_page_map)} artifacts in {artifact_direc}')
 
 
 if __name__ == '__main__':

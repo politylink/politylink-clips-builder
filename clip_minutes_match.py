@@ -34,6 +34,8 @@ def find_best_speech(name, topic, minutes_record):
 
 def main(clip_fp, minutes_fp, match_fp):
     clip_df = pd.read_csv(clip_fp)
+    LOGGER.info(f'loaded {len(clip_df)} clips')
+
     minutes_df = pd.read_csv(minutes_fp)
     clip_df = pd.merge(clip_df, minutes_df[['minutes_id', 'session', 'meeting', 'issue']],
                        how='left', on=['session', 'meeting', 'issue'])

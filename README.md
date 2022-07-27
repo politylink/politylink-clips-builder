@@ -9,18 +9,18 @@ scrapy crawl gclip
 
 ## データの生成
 
-| 　スクリプト             | 出力                |
-|--------------------|-------------------|
-| clip.py            | clip.csv          |
-| minutes.py         | minutes.csv       | 
-| member.py          | member.csv        | 
-| clip_minutes_match.py | clip_minutes.csv  | 
-| clip_member_match.py | clip_member.csv   | 
-| clip_gclip_match.py | clip_gclip.csv    | 
-| clip_clip_match.py | clip_clip.csv     | 
-| clip_image.py      | ${clip_id}.jpg    |
-| clip_category.py   | clip_category.csv | 
-| build_artifact.py  | ${clip_id}.json   | 
+| 　スクリプト                 | 出力                |
+|------------------------|-------------------|
+| clip.py                | clip.csv          |
+| minutes.py             | minutes.csv       | 
+| member.py              | member.csv        | 
+| clip_minutes_match.py  | clip_minutes.csv  | 
+| clip_member_match.py   | clip_member.csv   | 
+| clip_gclip_match.py    | clip_gclip.csv    | 
+| clip_clip_match.py     | clip_clip.csv     | 
+| clip_category_match.py | clip_category.csv | 
+| clip_image.py          | ${clip_id}.jpg    |
+| build_artifact.py      | ${clip_id}.json   | 
 
 ## スキーマ
 
