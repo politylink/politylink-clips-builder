@@ -6,8 +6,8 @@ from pathlib import Path
 import pandas as pd
 from tqdm import tqdm
 
-from mylib.utils import to_time_str, load_minutes_record
 from mylib.artifact import Speaker, Speech, Clip, ClipPage
+from mylib.utils import to_time_str, load_minutes_record
 
 LOGGER = getLogger(__name__)
 
@@ -52,7 +52,7 @@ def build_speaker(name, group, block):
 
 
 def main(clip_fp, member_fp,
-         minutes_match_fp, member_match_fp, gclip_match_fp, clip_match_fp, category_match_fp,
+         minutes_match_fp, member_match_fp, gclip_match_fp, clip_match_fp, category_match_fp, topic_match_fp,
          artifact_direc):
     clip_df = pd.read_csv(clip_fp)
     LOGGER.info(f'loaded {len(clip_df)} clips')
@@ -62,13 +62,15 @@ def main(clip_fp, member_fp,
     minutes_match_df = pd.read_csv(minutes_match_fp)
     gclip_match_df = pd.read_csv(gclip_match_fp)
     clip_match_df = pd.read_csv(clip_match_fp)
-    category_match_fp = pd.read_csv(category_match_fp)
+    category_match_df = pd.read_csv(category_match_fp)
+    topic_match_df = pd.read_csv(topic_match_fp)
 
     clip_df = pd.merge(clip_df, member_match_df[['clip_id', 'member_id']], on='clip_id')
     clip_df = pd.merge(clip_df, minutes_match_df[['clip_id', 'minutes_id', 'speech_id']], on='clip_id')
     clip_df = pd.merge(clip_df, gclip_match_df[['clip_id', 'gclip_id', 'start_msec']], on='clip_id')
     clip_df = pd.merge(clip_df, clip_match_df[['clip_id', 'clip_id_list']], on='clip_id')
-    clip_df = pd.merge(clip_df, category_match_fp[['clip_id', 'category_id']], on='clip_id')
+    clip_df = pd.merge(clip_df, category_match_df[['clip_id', 'category_id']], on='clip_id')
+    clip_df = pd.merge(clip_df, topic_match_df[['clip_id', 'topic_id_list']].fillna(''), on='clip_id')
     clip_df = pd.merge(clip_df, member_df[['member_id', 'group', 'block']], on='member_id')
     LOGGER.info(f'enriched {len(clip_df)} clips')
 
@@ -90,6 +92,8 @@ def main(clip_fp, member_fp,
             category_id=row['category_id'],
             speaker=speaker
         )
+        if row['topic_id_list']:
+            clip.topic_ids = list(map(int, row['topic_id_list'].split(';')))
         speeches = build_speech_list(row['minutes_id'], row['speech_id'])
 
         clip_page = ClipPage(
@@ -131,5 +135,6 @@ if __name__ == '__main__':
         clip_match_fp='./out/clip_clip.csv',
         member_match_fp='./out/clip_member.csv',
         category_match_fp='./out/clip_category.csv',
+        topic_match_fp='./out/clip_topic.csv',
         artifact_direc='./out/artifact/clip'
     )

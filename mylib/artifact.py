@@ -32,6 +32,7 @@ class Clip:
     minutes_url: str
     video_url: str
     category_id: int
+    topic_ids: Optional[list] = field(default=None, metadata=config(exclude=lambda x: x is None))
     speaker: Optional[Speaker] = field(default=None, metadata=config(exclude=lambda x: x is None))
 
 
@@ -50,3 +51,12 @@ class Member:
     member_id: int
     name: str
     url: str
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
+class Topic:
+    topic_id: int
+    title: str
+    category_id: int
+    clip_count: str

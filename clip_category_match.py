@@ -1,5 +1,4 @@
 import logging
-import unicodedata
 
 import pandas as pd
 
@@ -11,9 +10,10 @@ def main(clip_fp, category_fp, match_fp):
     LOGGER.info(f'loaded {len(clip_df)} clips')
 
     cat_df = pd.read_csv(category_fp, dtype={'category_id': 'Int64'})
-    cat_df['title'] = cat_df['title'].apply(lambda x: unicodedata.normalize('NFKC', x))
     cat_df = cat_df[['title', 'category_id']].drop_duplicates()
-    assert cat_df['title'].is_unique
+    if not cat_df['title'].is_unique:
+        message = f'conflict detected. Please update {category_fp}:\n{cat_df[cat_df["title"].duplicated(keep=False)]}'
+        raise RuntimeError(message)
 
     clip_df = pd.merge(clip_df[['clip_id', 'title']], cat_df[['title', 'category_id']], how='left', on='title')
 

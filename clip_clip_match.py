@@ -5,7 +5,7 @@ import pandas as pd
 import spacy
 from tqdm import tqdm
 
-from build_artifact import build_speech_list
+from build_artifact_clip import build_speech_list
 from mylib.canonicalize import normalize_text
 from mylib.utils import to_token_set, TokenFinder
 

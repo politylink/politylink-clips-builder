@@ -13,14 +13,18 @@ class Topic:
     clip_id_list: list
 
     def matches(self, text):
-        for item in self.condition.split(';'):
-            is_match = True
-            for phrase in item.split():
-                if phrase not in text:
-                    is_match = False
-            if is_match:
-                return True
-        return False
+        return is_match(self.condition, text)
+
+
+def is_match(condition, text):
+    for item in condition.split(';'):
+        is_match = True
+        for phrase in item.split():
+            if phrase not in text:
+                is_match = False
+        if is_match:
+            return True
+    return False
 
 
 @dataclass
