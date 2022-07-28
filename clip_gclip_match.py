@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 import spacy
 
-from utils import load_minutes_record, load_gclip_record
+from mylib.utils import load_minutes_record, load_gclip_record
 
 nlp = spacy.load('ja_ginza')
 

@@ -2,12 +2,12 @@ import re
 import unicodedata
 from logging import getLogger
 
+LOGGER = getLogger(__name__)
 ALIAS_TO_NAME = {  # 質疑項目　-> 国会会議録
     '礒﨑哲史': '礒崎哲史',
     '高野光二郞': '高野光二郎',
     '髙良鉄美': '高良鉄美'
 }
-LOGGER = getLogger(__name__)
 
 
 def canonicalize_name(name):

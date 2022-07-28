@@ -3,31 +3,37 @@ import logging
 import pandas as pd
 import spacy
 
-from canonicalize import normalize_text
-from utils import load_minutes_record, TokenFinder, to_token_set
+from mylib.canonicalize import normalize_text
+from mylib.utils import load_minutes_record, TokenFinder, to_token_set
 
 nlp = spacy.load('ja_ginza')
 
 LOGGER = logging.getLogger(__name__)
 
 
-def find_best_speech(name, topic, minutes_record):
-    topic_tokens = to_token_set(nlp(topic))
-    token_finder = TokenFinder(topic_tokens)
+def find_best_speech(speaker_name, clip_title, minutes_record):
+    """
+    find speech that best matches with clip title
+    """
+
+    with nlp.select_pipes(enable=['parser']):
+        doc = nlp(clip_title)
+    clip_tokens = to_token_set(doc)
+    token_finder = TokenFinder(clip_tokens)
 
     result = []
     for speech_record in minutes_record['speechRecord']:
         speaker = speech_record['speaker']
-        if speaker == name:
+        if speaker == speaker_name:
             text = normalize_text(speech_record['speech'])
             speech_id = speech_record['speechOrder']
             token_finder.index(speech_id, text)
             common_tokens = token_finder.find(id_=speech_id)
-            score = len(common_tokens) / len(topic_tokens)
+            score = len(common_tokens) / len(clip_tokens)
             result.append((speech_id, score))
 
     if not result:
-        raise ValueError('minutes_id={} does not have speech from {}'.format(minutes_record['issueID'], name))
+        raise ValueError('minutes_id={} does not have speech from {}'.format(minutes_record['issueID'], speaker_name))
 
     return max(result, key=lambda x: x[1])
 
@@ -57,7 +63,7 @@ def main(clip_fp, minutes_fp, match_fp):
         minutes_record = load_minutes_record(minutes_id)
         for _, clip in df.iterrows():
             try:
-                speech_id, score = find_best_speech(clip['name'], clip['topic'], minutes_record)
+                speech_id, score = find_best_speech(clip['name'], clip['title'], minutes_record)
                 records.append({
                     'clip_id': clip['clip_id'],
                     'minutes_id': clip['minutes_id'],

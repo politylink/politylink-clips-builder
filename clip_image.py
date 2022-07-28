@@ -18,7 +18,7 @@ def process(clip):
     ts_id = msec // 10000  # segment is 10 seconds long
     ts_sec = (msec % 10000) / 1000
 
-    if ts_sec > 9:  # found problem taking screenshot at the end of segment
+    if ts_sec > 9:  # avoid problem taking screenshot at the end of segment
         ts_id += 1
         ts_sec = 0.5
 

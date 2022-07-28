@@ -6,8 +6,8 @@ import spacy
 from tqdm import tqdm
 
 from build_artifact import build_speech_list
-from canonicalize import normalize_text
-from utils import to_token_set, TokenFinder
+from mylib.canonicalize import normalize_text
+from mylib.utils import to_token_set, TokenFinder
 
 nlp = spacy.load('ja_ginza')
 
@@ -19,14 +19,14 @@ def main(clip_fp, minutes_match_fp, clip_match_fp):
     m_match_df = pd.read_csv(minutes_match_fp, dtype={'speech_id': 'Int64'})
     clip_df = pd.merge(clip_df, m_match_df[['clip_id', 'minutes_id', 'speech_id']], on='clip_id')
 
-    LOGGER.info(f'tokenizing {len(clip_df)} topics')
+    LOGGER.info(f'tokenizing {len(clip_df)} clips')
     clip2tokens = dict()
     for _, clip in tqdm(clip_df.iterrows()):
         clip_id = clip['clip_id']
-        topic = clip['topic']
+        title = clip['title']
 
         with nlp.select_pipes(enable=['parser']):
-            doc = nlp(topic)
+            doc = nlp(title)
         clip2tokens[clip_id] = to_token_set(doc)
 
     all_tokens = set()
@@ -44,7 +44,7 @@ def main(clip_fp, minutes_match_fp, clip_match_fp):
     size = clip_df['clip_id'].max() + 1
     dist_mat = np.zeros((size, size))
 
-    LOGGER.info(f'calculating {len(clip_df)} similarity scores')
+    LOGGER.info(f'calculating similarity scores')
     for src_id in tqdm(clip_df['clip_id']):
         src_set = clip2tokens[src_id]
         for trg_id in clip_df['clip_id']:

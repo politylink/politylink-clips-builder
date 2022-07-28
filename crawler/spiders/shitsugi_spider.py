@@ -3,7 +3,7 @@ from urllib.parse import urljoin
 
 import scrapy
 
-from canonicalize import clean_text
+from mylib.canonicalize import clean_text
 
 LOGGER = getLogger(__name__)
 

@@ -1,56 +1,15 @@
 import json
 import logging
-from dataclasses import dataclass, field
 from logging import getLogger
 from pathlib import Path
-from typing import Optional
 
 import pandas as pd
-from dataclasses_json import dataclass_json, LetterCase, config
 from tqdm import tqdm
 
-from utils import to_time_str, load_minutes_record
+from mylib.utils import to_time_str, load_minutes_record
+from mylib.artifact import Speaker, Speech, Clip, ClipPage
 
 LOGGER = getLogger(__name__)
-
-
-@dataclass_json(letter_case=LetterCase.CAMEL)
-@dataclass
-class Speaker:
-    name: str
-    info: str = ''
-    group: str = ''
-    block: str = ''
-
-
-@dataclass_json(letter_case=LetterCase.CAMEL)
-@dataclass
-class Speech:
-    speaker: Speaker
-    speech: str
-
-
-@dataclass_json(letter_case=LetterCase.CAMEL)
-@dataclass
-class Clip:
-    clip_id: int
-    title: str
-    date: str
-    house: str
-    meeting: str
-    minutes_url: str
-    video_url: str
-    category_id: int
-    speaker: Optional[Speaker] = field(default=None, metadata=config(exclude=lambda x: x is None))
-
-
-@dataclass_json(letter_case=LetterCase.CAMEL)
-@dataclass
-class ClipPage:
-    clip: Clip
-    speeches: Optional[list] = field(default=None, metadata=config(exclude=lambda x: x is None))
-    speakers: Optional[list] = field(default=None, metadata=config(exclude=lambda x: x is None))
-    clips: Optional[list] = field(default=None, metadata=config(exclude=lambda x: x is None))
 
 
 def format_speech_text(text, thresh):
@@ -119,10 +78,10 @@ def main(clip_fp, member_fp,
         video_url = 'https://gclip1.grips.ac.jp/video/video/{0}?t={1}'.format(
             row['gclip_id'], to_time_str(row['start_msec']))
 
-        speaker = build_speaker(name=row['name'], group=row['group'], block=row['block'])
+        speaker = Speaker(name=row['name'], group=row['group'], block=row['block'], member_id=row['member_id'])
         clip = Clip(
             clip_id=row['clip_id'],
-            title=row['topic'],
+            title=row['title'],
             date=row['date'],
             house='参議院',
             meeting=row['meeting'],
@@ -172,5 +131,5 @@ if __name__ == '__main__':
         clip_match_fp='./out/clip_clip.csv',
         member_match_fp='./out/clip_member.csv',
         category_match_fp='./out/clip_category.csv',
-        artifact_direc='./out/artifact'
+        artifact_direc='./out/artifact/clip'
     )

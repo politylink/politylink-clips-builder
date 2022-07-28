@@ -1,17 +1,15 @@
 [tool.poetry]
-name = "politylink-nlp"
+name = "politylink-clips-builder"
 version = "0.1.0"
 description = ""
 authors = ["MitsukiUsui"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-sumy = "^0.10.0"
 politylink = "^0.1.90"
-requests = "^2.28.0"
 matplotlib = "^3.0.3"
-networkx = "^2.8.4"
-gensim = "^4.2.0"
+pyahocorasick = "^1.4.4"
+dataclasses-json = "^0.5.7"
 
 [tool.poetry.dev-dependencies]
 jupyterlab = "^3.4.3"

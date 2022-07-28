@@ -6,7 +6,7 @@ from logging import getLogger
 import pandas as pd
 from politylink.utils import DateConverter, to_date_str
 
-from canonicalize import canonicalize_name, extract_issue, normalize_text
+from mylib.canonicalize import canonicalize_name, extract_issue, normalize_text
 
 LOGGER = getLogger(__name__)
 
@@ -80,7 +80,7 @@ def main(jsonl_fp, csv_fp):
             name = extract_name(shitsugi['name'])
             for topic in shitsugi['topic_list']:
                 clips.append({
-                    'topic': normalize_text(topic),
+                    'title': normalize_text(topic),
                     'name': name,
                     'date': date,
                     'session': session,
@@ -91,6 +91,7 @@ def main(jsonl_fp, csv_fp):
                 })
 
     clip_df = pd.DataFrame(clips)
+    clip_df.index = clip_df.index + 1
     clip_df.to_csv(csv_fp, index_label='clip_id')
     LOGGER.info(f'saved {len(clip_df)}　records to {csv_fp}')
 

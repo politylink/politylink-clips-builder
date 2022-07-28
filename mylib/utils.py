@@ -83,6 +83,10 @@ class TokenFinder:
             return self.index_[token][id_]
 
 
-def to_token_set(doc):
+def to_token_list(doc):
     pos_set = {'ADJ', 'ADV', 'NOUN', 'PROPN'}
-    return set([token.text for token in doc if token.pos_ in pos_set])
+    return [token.text for token in doc if token.pos_ in pos_set]
+
+
+def to_token_set(doc):
+    return set(to_token_list(doc))

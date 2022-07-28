@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from canonicalize import extract_issue
+from mylib.canonicalize import extract_issue
 
 LOGGER = logging.getLogger(__name__)
 
