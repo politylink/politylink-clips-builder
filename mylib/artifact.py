@@ -32,6 +32,14 @@ class Member:
 
 @dataclass_json(letter_case=LetterCase.CAMEL)
 @dataclass
+class Topic:
+    topic_id: int
+    title: str
+    category_id: int
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
 class Clip:
     clip_id: int
     title: str
@@ -51,12 +59,4 @@ class ClipPage:
     clip: Clip
     speeches: Optional[list] = field(default=None, metadata=config(exclude=lambda x: x is None))
     clips: Optional[list] = field(default=None, metadata=config(exclude=lambda x: x is None))
-
-
-@dataclass_json(letter_case=LetterCase.CAMEL)
-@dataclass
-class Topic:
-    topic_id: int
-    title: str
-    category_id: int
-    clip_count: str
+    topics: Optional[list] = field(default=None, metadata=config(exclude=lambda x: x is None))

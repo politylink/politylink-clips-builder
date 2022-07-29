@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 from tqdm import tqdm
 
-from mylib.artifact import Speaker, Speech, Clip, ClipPage, Member
+from mylib.artifact import Speaker, Speech, Clip, ClipPage, Member, Topic
 from mylib.utils import to_time_str, load_minutes_record
 
 LOGGER = getLogger(__name__)
@@ -41,14 +41,14 @@ def build_speech_list(minutes_id, speech_id, speech_count=2, speech_thresh=300):
     return speech_list
 
 
-
-def main(clip_fp, member_fp,
+def main(clip_fp, member_fp, topic_fp,
          minutes_match_fp, member_match_fp, gclip_match_fp, clip_match_fp, category_match_fp, topic_match_fp,
          artifact_direc):
     clip_df = pd.read_csv(clip_fp)
     LOGGER.info(f'loaded {len(clip_df)} clips')
 
     member_df = pd.read_csv(member_fp)
+    topic_df = pd.read_csv(topic_fp)
     member_match_df = pd.read_csv(member_match_fp)
     minutes_match_df = pd.read_csv(minutes_match_fp)
     gclip_match_df = pd.read_csv(gclip_match_fp)
@@ -64,6 +64,12 @@ def main(clip_fp, member_fp,
     clip_df = pd.merge(clip_df, topic_match_df[['clip_id', 'topic_id_list']].fillna(''), on='clip_id')
     clip_df = pd.merge(clip_df, member_df[['member_id', 'group', 'block', 'image_url']], on='member_id')
     LOGGER.info(f'enriched {len(clip_df)} clips')
+
+    topic_map = dict()
+    for _, row in topic_df.iterrows():
+        topic_id = row['topic_id']
+        topic = Topic(topic_id=topic_id, title=row['title'], category_id=row['category_id'])
+        topic_map[topic_id] = topic
 
     clip_page_map = dict()
     for _, row in tqdm(clip_df.iterrows()):
@@ -89,14 +95,16 @@ def main(clip_fp, member_fp,
             category_id=row['category_id'],
             member=member
         )
+
         if row['topic_id_list']:
             clip.topic_ids = list(map(int, row['topic_id_list'].split(';')))
         speeches = build_speech_list(row['minutes_id'], row['speech_id'])
-
         clip_page = ClipPage(
             clip=clip,
             speeches=speeches,
         )
+        if clip.topic_ids:
+            clip_page.topics = [topic_map[topic_id] for topic_id in clip.topic_ids]
         clip_page_map[row['clip_id']] = clip_page
     LOGGER.info(f'built {len(clip_page_map)} clip pages')
 
@@ -126,6 +134,7 @@ if __name__ == '__main__':
     main(
         clip_fp='./out/clip.csv',
         member_fp='./out/member.csv',
+        topic_fp='./out/topic.csv',
         minutes_match_fp='./out/clip_minutes.csv',
         gclip_match_fp='./out/clip_gclip.csv',
         clip_match_fp='./out/clip_clip.csv',
