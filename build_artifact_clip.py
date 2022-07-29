@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 from tqdm import tqdm
 
-from mylib.artifact import Speaker, Speech, Clip, ClipPage
+from mylib.artifact import Speaker, Speech, Clip, ClipPage, Member
 from mylib.utils import to_time_str, load_minutes_record
 
 LOGGER = getLogger(__name__)
@@ -22,8 +22,7 @@ def format_speech_text(text, thresh):
 def build_speech(speech_record, thresh):
     speaker = Speaker(
         name=speech_record['speaker'],
-        info=speech_record['speakerPosition'] or speech_record['speakerGroup'],
-        group=speech_record['speakerGroup']
+        info=speech_record['speakerPosition'] or speech_record['speakerGroup']
     )
     speech_text = format_speech_text(speech_record['speech'], thresh)
     return Speech(
@@ -41,14 +40,6 @@ def build_speech_list(minutes_id, speech_id, speech_count=2, speech_thresh=300):
             speech_list.append(build_speech(minutes_record['speechRecord'][idx], speech_thresh))
     return speech_list
 
-
-def build_speaker(name, group, block):
-    return Speaker(
-        name=name,
-        info=f'{group}・{block}',
-        group=group,
-        block=block
-    )
 
 
 def main(clip_fp, member_fp,
@@ -71,7 +62,7 @@ def main(clip_fp, member_fp,
     clip_df = pd.merge(clip_df, clip_match_df[['clip_id', 'clip_id_list']], on='clip_id')
     clip_df = pd.merge(clip_df, category_match_df[['clip_id', 'category_id']], on='clip_id')
     clip_df = pd.merge(clip_df, topic_match_df[['clip_id', 'topic_id_list']].fillna(''), on='clip_id')
-    clip_df = pd.merge(clip_df, member_df[['member_id', 'group', 'block']], on='member_id')
+    clip_df = pd.merge(clip_df, member_df[['member_id', 'group', 'block', 'image_url']], on='member_id')
     LOGGER.info(f'enriched {len(clip_df)} clips')
 
     clip_page_map = dict()
@@ -80,7 +71,13 @@ def main(clip_fp, member_fp,
         video_url = 'https://gclip1.grips.ac.jp/video/video/{0}?t={1}'.format(
             row['gclip_id'], to_time_str(row['start_msec']))
 
-        speaker = Speaker(name=row['name'], group=row['group'], block=row['block'], member_id=row['member_id'])
+        member = Member(
+            member_id=row['member_id'],
+            name=row['name'],
+            group=row['group'],
+            block=row['block'],
+            image_url=row['image_url']
+        )
         clip = Clip(
             clip_id=row['clip_id'],
             title=row['title'],
@@ -90,7 +87,7 @@ def main(clip_fp, member_fp,
             minutes_url=minutes_url,
             video_url=video_url,
             category_id=row['category_id'],
-            speaker=speaker
+            member=member
         )
         if row['topic_id_list']:
             clip.topic_ids = list(map(int, row['topic_id_list'].split(';')))
@@ -99,7 +96,6 @@ def main(clip_fp, member_fp,
         clip_page = ClipPage(
             clip=clip,
             speeches=speeches,
-            speakers=[speaker]
         )
         clip_page_map[row['clip_id']] = clip_page
     LOGGER.info(f'built {len(clip_page_map)} clip pages')

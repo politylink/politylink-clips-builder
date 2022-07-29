@@ -1,10 +1,14 @@
-## データの取得
+## データのダウンロード
 
 ```
 scrapy crawl shitsugi -o ./out/shitsugi.jl
 scrapy crawl member -a diet=208 -o ./out/member.jl
 scrapy crawl minutes -a first_date=2022-01-17 -a last_date=2022-06-15
 scrapy crawl gclip
+```
+
+```
+wget https://raw.githubusercontent.com/smartnews-smri/house-of-councillors/main/data/giin.csv -o ./data/giin.csv
 ```
 
 ## データの生成
@@ -58,7 +62,6 @@ scrapy crawl gclip
 | name      | 名前     | 田中 太郎     | 
 | yomi      | 読み     | たなか たろう   |
 | group     | 会派     | 各派に属しない議員 |
-| group_short  | 会派（省略） | 無所属       |
 | block     | 選挙区    | 比例        |
 | tenure    | 任期     |令和4年7月25日|
 

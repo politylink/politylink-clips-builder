@@ -9,9 +9,6 @@ from dataclasses_json import dataclass_json, LetterCase, config
 class Speaker:
     name: str
     info: str = ''
-    group: str = ''
-    block: str = ''
-    member_id: int = -1
 
 
 @dataclass_json(letter_case=LetterCase.CAMEL)
@@ -19,6 +16,18 @@ class Speaker:
 class Speech:
     speaker: Speaker
     speech: str
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
+class Member:
+    member_id: int
+    name: str
+    group: str
+    block: str
+    summary: Optional[str] = field(default=None, metadata=config(exclude=lambda x: x is None))
+    ref_url: Optional[str] = field(default=None, metadata=config(exclude=lambda x: x is None))
+    image_url: Optional[str] = field(default=None, metadata=config(exclude=lambda x: x is None))
 
 
 @dataclass_json(letter_case=LetterCase.CAMEL)
@@ -32,8 +41,8 @@ class Clip:
     minutes_url: str
     video_url: str
     category_id: int
+    member: Member
     topic_ids: Optional[list] = field(default=None, metadata=config(exclude=lambda x: x is None))
-    speaker: Optional[Speaker] = field(default=None, metadata=config(exclude=lambda x: x is None))
 
 
 @dataclass_json(letter_case=LetterCase.CAMEL)
@@ -41,16 +50,7 @@ class Clip:
 class ClipPage:
     clip: Clip
     speeches: Optional[list] = field(default=None, metadata=config(exclude=lambda x: x is None))
-    speakers: Optional[list] = field(default=None, metadata=config(exclude=lambda x: x is None))
     clips: Optional[list] = field(default=None, metadata=config(exclude=lambda x: x is None))
-
-
-@dataclass_json(letter_case=LetterCase.CAMEL)
-@dataclass
-class Member:
-    member_id: int
-    name: str
-    url: str
 
 
 @dataclass_json(letter_case=LetterCase.CAMEL)

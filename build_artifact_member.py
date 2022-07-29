@@ -15,7 +15,15 @@ def main(member_fp, artifact_direc):
 
     for _, row in member_df.iterrows():
         member_id = row['member_id']
-        member = Member(member_id=member_id, name=row['name'], url=row['url'])
+        member = Member(
+            member_id=member_id,
+            name=row['name'],
+            group=row['group'],
+            block=row['block'],
+            summary=row['summary'],
+            ref_url=row['ref_url'],
+            image_url=row['image_url']
+        )
         artifact_fp = Path(artifact_direc) / '{}.json'.format(member_id)
         with open(artifact_fp, 'w') as f:
             json.dump(member.to_dict(), f, ensure_ascii=False, indent=2)
