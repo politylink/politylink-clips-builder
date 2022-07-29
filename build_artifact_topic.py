@@ -29,7 +29,7 @@ def main(topic_fp, topic_match_fp, category_match_fp, artifact_direc):
 
     for _, row in topic_df.iterrows():
         topic_id = row['topic_id']
-        title = row['condition'].split(';')[0]
+        title = row['title']
         topic = Topic(topic_id=topic_id, title=title, category_id=row['category_id'], clip_count=row['clip_count'])
         artifact_fp = Path(artifact_direc) / '{}.json'.format(topic_id)
         with open(artifact_fp, 'w') as f:
