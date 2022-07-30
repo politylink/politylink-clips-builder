@@ -9,20 +9,20 @@ nlp = spacy.load('ja_ginza')
 @dataclass
 class Topic:
     topic_id: int
-    condition: str  # e.g. "foo bar;baz" = (foo AND bar) OR (baz)
+    query: str  # e.g. "foo bar;baz" = (foo AND bar) OR (baz)
     clip_id_list: list
 
     def matches(self, text):
-        return is_match(self.condition, text)
+        return is_match(self.query, text)
 
 
-def is_match(condition, text):
-    for item in condition.split(';'):
-        is_match = True
+def is_match(query, text):
+    for item in query.split(';'):
+        match = True
         for phrase in item.split():
             if phrase not in text:
-                is_match = False
-        if is_match:
+                match = False
+        if match:
             return True
     return False
 
@@ -73,19 +73,19 @@ class TopicGenerator:
         for clip in clip_list:
             self.clip_map[clip.clip_id] = clip
 
-        self.condition_set = set()
+        self.query_set = set()
         self.topic_map = dict()
         self.next_topic_id = 1
 
-    def generate(self, condition):
-        topic = Topic(topic_id=self.next_topic_id, condition=condition, clip_id_list=list())
+    def generate(self, query):
+        topic = Topic(topic_id=self.next_topic_id, query=query, clip_id_list=list())
         self.next_topic_id += 1
         return topic
 
-    def add(self, condition):
-        if condition not in self.condition_set:
-            self.condition_set.update((condition,))
-            topic = self.generate(condition)
+    def add(self, query):
+        if query not in self.query_set:
+            self.query_set.update((query,))
+            topic = self.generate(query)
             self.set(topic)
 
     def set(self, topic):
@@ -107,7 +107,7 @@ class TopicGenerator:
                     clip_id_list.append(clip_id)
         elif topic_id == 'all':  # use all clips
             clip_id_list = self.clip_map.keys()
-        else:  # use clips belong to the topic_id
+        else:  # use clips belong to the specified topic_id
             clip_id_list = self.topic_map[int(topic_id)].clip_id_list
 
         counter = Counter()

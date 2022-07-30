@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from mylib.artifact import Topic
+from mylib.artifact import Topic, TopicPage
 
 LOGGER = logging.getLogger(__name__)
 
@@ -20,9 +20,12 @@ def main(topic_fp, artifact_direc):
             title=row['title'],
             category_id=row['category_id']
         )
+        topic_page = TopicPage(
+            topic=topic
+        )
         artifact_fp = Path(artifact_direc) / '{}.json'.format(topic_id)
         with open(artifact_fp, 'w') as f:
-            json.dump(topic.to_dict(), f, ensure_ascii=False, indent=2)
+            json.dump(topic_page.to_dict(), f, ensure_ascii=False, indent=2)
             LOGGER.debug(f'saved {artifact_fp}')
     LOGGER.info(f'published {len(topic_df)} artifacts in {artifact_direc}')
 

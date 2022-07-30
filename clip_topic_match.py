@@ -17,7 +17,7 @@ def main(clip_fp, topic_fp, match_fp):
     for _, clip in tqdm(clip_df.iterrows()):
         topic_id_list = []
         for _, topic in topic_df.iterrows():
-            if is_match(topic['condition'], clip['title']):
+            if is_match(topic['query'], clip['title']):
                 topic_id_list.append(topic['topic_id'])
         records.append({
             'clip_id': clip['clip_id'],

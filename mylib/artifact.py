@@ -60,3 +60,17 @@ class ClipPage:
     speeches: Optional[list] = field(default=None, metadata=config(exclude=lambda x: x is None))
     clips: Optional[list] = field(default=None, metadata=config(exclude=lambda x: x is None))
     topics: Optional[list] = field(default=None, metadata=config(exclude=lambda x: x is None))
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
+class MemberPage:
+    member: Member
+    topics: Optional[list] = field(default=None, metadata=config(exclude=lambda x: x is None))
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
+class TopicPage:
+    topic: Topic
+    topics: Optional[list] = field(default=None, metadata=config(exclude=lambda x: x is None))
