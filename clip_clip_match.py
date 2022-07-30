@@ -14,10 +14,10 @@ nlp = spacy.load('ja_ginza')
 LOGGER = logging.getLogger(__name__)
 
 
-def main(clip_fp, minutes_match_fp, clip_match_fp):
+def main(clip_fp, clip_minutes_fp, clip_clip_fp):
     clip_df = pd.read_csv(clip_fp)
-    m_match_df = pd.read_csv(minutes_match_fp, dtype={'speech_id': 'Int64'})
-    clip_df = pd.merge(clip_df, m_match_df[['clip_id', 'minutes_id', 'speech_id']], on='clip_id')
+    clip_minutes_df = pd.read_csv(clip_minutes_fp, dtype={'speech_id': 'Int64'})
+    clip_df = pd.merge(clip_df, clip_minutes_df[['clip_id', 'minutes_id', 'speech_id']], on='clip_id')
 
     LOGGER.info(f'tokenizing {len(clip_df)} clips')
     clip2tokens = dict()
@@ -63,15 +63,15 @@ def main(clip_fp, minutes_match_fp, clip_match_fp):
             'score_list': ';'.join(map(lambda x: '{:.2f}'.format(x), score_list))
         })
 
-    c_match_df = pd.DataFrame(records)
-    c_match_df.to_csv(clip_match_fp, index=False)
-    LOGGER.info(f'saved {len(c_match_df)} records to {clip_match_fp}')
+    out_df = pd.DataFrame(records)
+    out_df.to_csv(clip_clip_fp, index=False)
+    LOGGER.info(f'saved {len(out_df)} records to {clip_clip_fp}')
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     main(
         clip_fp='./out/clip.csv',
-        minutes_match_fp='./out/clip_minutes.csv',
-        clip_match_fp='./out/clip_clip.csv'
+        clip_minutes_fp='./out/clip_minutes.csv',
+        clip_clip_fp='./out/clip_clip.csv'
     )

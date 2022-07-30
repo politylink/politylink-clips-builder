@@ -33,11 +33,11 @@ def process(clip):
         LOGGER.warning(cmd)
 
 
-def main(gclip_fp, g_match_fp):
+def main(gclip_fp, clip_gclip_fp):
     gclip_df = pd.read_csv(gclip_fp)
-    g_match_df = pd.read_csv(g_match_fp)
-    g_match_df = pd.merge(g_match_df, gclip_df, on='gclip_id')
-    clips = g_match_df.to_dict(orient='records')
+    clip_gclip_df = pd.read_csv(clip_gclip_fp)
+    clip_gclip_df = pd.merge(clip_gclip_df, gclip_df, on='gclip_id')
+    clips = clip_gclip_df.to_dict(orient='records')
     LOGGER.info(f'found {len(clips)} clips to process')
 
     with ThreadPoolExecutor(max_workers=4) as executor:
@@ -48,5 +48,5 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     main(
         gclip_fp='./out/gclip.csv',
-        g_match_fp='./out/clip_gclip.csv'
+        clip_gclip_fp='./out/clip_gclip.csv'
     )

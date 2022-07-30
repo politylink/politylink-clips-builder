@@ -19,10 +19,11 @@ def main(clip_fp, topic_fp, match_fp):
         for _, topic in topic_df.iterrows():
             if is_match(topic['query'], clip['title']):
                 topic_id_list.append(topic['topic_id'])
-        records.append({
-            'clip_id': clip['clip_id'],
-            'topic_id_list': ';'.join(map(str, topic_id_list))
-        })
+        if topic_id_list:
+            records.append({
+                'clip_id': clip['clip_id'],
+                'topic_id_list': ';'.join(map(str, topic_id_list))
+            })
 
     out_df = pd.DataFrame(records)
     out_df.to_csv(match_fp, index=False)

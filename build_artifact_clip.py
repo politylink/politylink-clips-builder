@@ -42,26 +42,27 @@ def build_speech_list(minutes_id, speech_id, speech_count=2, speech_thresh=300):
 
 
 def main(clip_fp, member_fp, topic_fp,
-         minutes_match_fp, member_match_fp, gclip_match_fp, clip_match_fp, category_match_fp, topic_match_fp,
+         clip_minutes_fp, clip_member_fp, clip_gclip_fp, clip_clip_fp, clip_category_fp, clip_topic_fp,
          artifact_direc):
     clip_df = pd.read_csv(clip_fp)
     LOGGER.info(f'loaded {len(clip_df)} clips')
 
     member_df = pd.read_csv(member_fp)
     topic_df = pd.read_csv(topic_fp)
-    member_match_df = pd.read_csv(member_match_fp)
-    minutes_match_df = pd.read_csv(minutes_match_fp)
-    gclip_match_df = pd.read_csv(gclip_match_fp)
-    clip_match_df = pd.read_csv(clip_match_fp)
-    category_match_df = pd.read_csv(category_match_fp)
-    topic_match_df = pd.read_csv(topic_match_fp)
+    clip_member_df = pd.read_csv(clip_member_fp)
+    clip_minutes_df = pd.read_csv(clip_minutes_fp)
+    clip_gclip_df = pd.read_csv(clip_gclip_fp)
+    clip_clip_df = pd.read_csv(clip_clip_fp)
+    clip_category_df = pd.read_csv(clip_category_fp)
+    clip_topic_df = pd.read_csv(clip_topic_fp)
 
-    clip_df = pd.merge(clip_df, member_match_df[['clip_id', 'member_id']], on='clip_id')
-    clip_df = pd.merge(clip_df, minutes_match_df[['clip_id', 'minutes_id', 'speech_id']], on='clip_id')
-    clip_df = pd.merge(clip_df, gclip_match_df[['clip_id', 'gclip_id', 'start_msec']], on='clip_id')
-    clip_df = pd.merge(clip_df, clip_match_df[['clip_id', 'clip_id_list']], on='clip_id')
-    clip_df = pd.merge(clip_df, category_match_df[['clip_id', 'category_id']], on='clip_id')
-    clip_df = pd.merge(clip_df, topic_match_df[['clip_id', 'topic_id_list']].fillna(''), on='clip_id')
+    clip_df = pd.merge(clip_df, clip_member_df[['clip_id', 'member_id']], on='clip_id')
+    clip_df = pd.merge(clip_df, clip_minutes_df[['clip_id', 'minutes_id', 'speech_id']], on='clip_id')
+    clip_df = pd.merge(clip_df, clip_gclip_df[['clip_id', 'gclip_id', 'start_msec']], on='clip_id')
+    clip_df = pd.merge(clip_df, clip_clip_df[['clip_id', 'clip_id_list']], on='clip_id')
+    clip_df = pd.merge(clip_df, clip_category_df[['clip_id', 'category_id']], on='clip_id')
+    clip_df = pd.merge(clip_df, clip_topic_df[['clip_id', 'topic_id_list']], on='clip_id', how='left')\
+        .fillna({'topic_id_list': ''})
     clip_df = pd.merge(clip_df, member_df[['member_id', 'group', 'block', 'image_url']], on='member_id')
     LOGGER.info(f'enriched {len(clip_df)} clips')
 
@@ -135,11 +136,11 @@ if __name__ == '__main__':
         clip_fp='./out/clip.csv',
         member_fp='./out/member.csv',
         topic_fp='./out/topic.csv',
-        minutes_match_fp='./out/clip_minutes.csv',
-        gclip_match_fp='./out/clip_gclip.csv',
-        clip_match_fp='./out/clip_clip.csv',
-        member_match_fp='./out/clip_member.csv',
-        category_match_fp='./out/clip_category.csv',
-        topic_match_fp='./out/clip_topic.csv',
+        clip_minutes_fp='./out/clip_minutes.csv',
+        clip_gclip_fp='./out/clip_gclip.csv',
+        clip_clip_fp='./out/clip_clip.csv',
+        clip_member_fp='./out/clip_member.csv',
+        clip_category_fp='./out/clip_category.csv',
+        clip_topic_fp='./out/clip_topic.csv',
         artifact_direc='./out/artifact/clip'
     )

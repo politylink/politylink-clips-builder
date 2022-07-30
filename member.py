@@ -21,6 +21,7 @@ def main(giin_fp, member_fp):
     giin_df = pd.read_csv(giin_fp)
     member_df = giin_df[columns.keys()].rename(columns=columns)
     member_df['name'] = member_df['name'].apply(clean_text)
+    member_df['yomi'] = member_df['yomi'].apply(clean_text)
     member_df.index = member_df.index + 1
     member_df.to_csv(member_fp, index_label='member_id')
     LOGGER.info(f'saved {len(member_df)} records to {member_fp}')

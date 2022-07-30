@@ -26,12 +26,12 @@ def find_best_gclip_speech(minutes_speech, gclip_record, qsize=10):
     raise ValueError(f'failed to find gclip match: {minutes_speech}')
 
 
-def main(clip_fp, minutes_match_fp, gclip_fp, gclip_match_fp):
+def main(clip_fp, clip_minutes_fp, gclip_fp, clip_gclip_fp):
     clip_df = pd.read_csv(clip_fp)
-    m_match_df = pd.read_csv(minutes_match_fp, dtype={'speech_id': 'Int64'})
+    clip_minutes_df = pd.read_csv(clip_minutes_fp, dtype={'speech_id': 'Int64'})
     gclip_df = pd.read_csv(gclip_fp, dtype={'gclip_id': 'Int64'})
 
-    clip_df = pd.merge(clip_df, m_match_df[['clip_id', 'minutes_id', 'speech_id']], on='clip_id', how='left')
+    clip_df = pd.merge(clip_df, clip_minutes_df[['clip_id', 'minutes_id', 'speech_id']], on='clip_id', how='left')
     clip_df = pd.merge(clip_df, gclip_df[['minutes_id', 'gclip_id']], on='minutes_id', how='left')
 
     is_missed = clip_df['gclip_id'].isnull()
@@ -56,17 +56,17 @@ def main(clip_fp, minutes_match_fp, gclip_fp, gclip_match_fp):
                 'start_msec': gclip_speech['start_msec']
             })
 
-    g_match_df = pd.DataFrame(records)
-    g_match_df = g_match_df.sort_values(by='clip_id')
-    g_match_df.to_csv(gclip_match_fp, index=False)
-    LOGGER.info(f'saved {len(g_match_df)} records to {gclip_match_fp}')
+    out_df = pd.DataFrame(records)
+    out_df = out_df.sort_values(by='clip_id')
+    out_df.to_csv(clip_gclip_fp, index=False)
+    LOGGER.info(f'saved {len(out_df)} records to {clip_gclip_fp}')
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     main(
         clip_fp='./out/clip.csv',
-        minutes_match_fp='./out/clip_minutes.csv',
+        clip_minutes_fp='./out/clip_minutes.csv',
         gclip_fp='./out/gclip.csv',
-        gclip_match_fp='./out/clip_gclip.csv'
+        clip_gclip_fp='./out/clip_gclip.csv'
     )

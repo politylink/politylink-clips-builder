@@ -90,3 +90,10 @@ def to_token_list(doc):
 
 def to_token_set(doc):
     return set(to_token_list(doc))
+
+
+def flatten_id_list(df, list_column, flat_column):
+    df[list_column] = df[list_column].apply(lambda x: x.split(';'))
+    df = df.explode(list_column).rename(columns={list_column: flat_column})
+    df[flat_column] = df[flat_column].astype(int)
+    return df
