@@ -38,7 +38,7 @@ def find_best_speech(speaker_name, clip_title, minutes_record):
     return max(result, key=lambda x: x[1])
 
 
-def main(clip_fp, minutes_fp, match_fp):
+def main(clip_fp, minutes_fp, overwrite_fp, match_fp):
     clip_df = pd.read_csv(clip_fp)
     LOGGER.info(f'loaded {len(clip_df)} clips')
 
@@ -74,7 +74,14 @@ def main(clip_fp, minutes_fp, match_fp):
                 LOGGER.exception(f'failed to find match for clip_id={clip["clip_id"]}')
 
     out_df = pd.DataFrame(records)
-    out_df = out_df.sort_values(by='clip_id')
+
+    # manually overwrite assignment
+    overwrite_df = pd.read_csv(overwrite_fp)
+    overwrite_df['score'] = 100
+    out_df = pd.concat([out_df, overwrite_df])
+    out_df = out_df.sort_values(by=['clip_id', 'score'], ascending=[True, False])
+    out_df.drop_duplicates('clip_id', keep='first', inplace=True)
+
     out_df.to_csv(match_fp, index=False)
     LOGGER.info(f'saved {len(out_df)} records to {match_fp}')
 
@@ -84,5 +91,6 @@ if __name__ == '__main__':
     main(
         clip_fp='./out/clip.csv',
         minutes_fp='./out/minutes.csv',
+        overwrite_fp='./data/clip_minutes.csv',
         match_fp='./out/clip_minutes.csv'
     )
