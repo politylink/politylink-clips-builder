@@ -31,6 +31,6 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     main(
         clip_fp='./out/clip.csv',
-        category_fp='./data/category.csv',
+        category_fp='./data/category_annotation.csv',
         match_fp='./out/clip_category.csv'
     )

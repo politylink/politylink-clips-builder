@@ -40,6 +40,14 @@ class Topic:
 
 @dataclass_json(letter_case=LetterCase.CAMEL)
 @dataclass
+class Category:
+    category_id: int
+    title: str
+    desc: str
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
 class Clip:
     clip_id: int
     title: str
@@ -73,4 +81,11 @@ class MemberPage:
 @dataclass
 class TopicPage:
     topic: Topic
+    topics: Optional[list] = field(default=None, metadata=config(exclude=lambda x: x is None))
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
+class CategoryPage:
+    category: Category
     topics: Optional[list] = field(default=None, metadata=config(exclude=lambda x: x is None))
