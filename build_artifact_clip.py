@@ -7,7 +7,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from mylib.artifact import Speaker, Speech, Clip, ClipPage, Member, Topic
-from mylib.utils import to_time_str, load_minutes_record
+from mylib.utils import to_time_str, load_minutes_record, load_topic_map
 
 LOGGER = getLogger(__name__)
 
@@ -48,7 +48,6 @@ def main(clip_fp, member_fp, topic_fp,
     LOGGER.info(f'loaded {len(clip_df)} clips')
 
     member_df = pd.read_csv(member_fp)
-    topic_df = pd.read_csv(topic_fp)
     clip_member_df = pd.read_csv(clip_member_fp)
     clip_minutes_df = pd.read_csv(clip_minutes_fp)
     clip_gclip_df = pd.read_csv(clip_gclip_fp)
@@ -66,11 +65,7 @@ def main(clip_fp, member_fp, topic_fp,
     clip_df = pd.merge(clip_df, member_df[['member_id', 'group', 'block', 'image_url']], on='member_id')
     LOGGER.info(f'enriched {len(clip_df)} clips')
 
-    topic_map = dict()
-    for _, row in topic_df.iterrows():
-        topic_id = row['topic_id']
-        topic = Topic(topic_id=topic_id, title=row['title'], category_id=row['category_id'])
-        topic_map[topic_id] = topic
+    topic_map = load_topic_map(topic_fp)
 
     clip_page_map = dict()
     for _, row in tqdm(clip_df.iterrows()):

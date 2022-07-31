@@ -5,12 +5,17 @@ from pathlib import Path
 import pandas as pd
 
 from mylib.artifact import Member, MemberPage
+from mylib.utils import load_topic_map
 
 LOGGER = logging.getLogger(__name__)
 
 
-def main(member_fp, artifact_direc):
+def main(member_fp, topic_fp, member_topic_fp, artifact_direc):
     member_df = pd.read_csv(member_fp)
+    member_topic_df = pd.read_csv(member_topic_fp)
+    member_df = pd.merge(member_df, member_topic_df[['member_id', 'topic_id_list']], on='member_id', how='left') \
+        .fillna({'topic_id_list': ''})
+    topic_map = load_topic_map(topic_fp)
     LOGGER.info(f'loaded {len(member_df)} members')
 
     for _, row in member_df.iterrows():
@@ -27,6 +32,10 @@ def main(member_fp, artifact_direc):
         member_page = MemberPage(
             member=member
         )
+        if row['topic_id_list']:
+            topic_id_list = list(map(int, row['topic_id_list'].split(';')))
+            member_page.topics = [topic_map[topic_id] for topic_id in topic_id_list]
+
         artifact_fp = Path(artifact_direc) / '{}.json'.format(member_id)
         with open(artifact_fp, 'w') as f:
             json.dump(member_page.to_dict(), f, ensure_ascii=False, indent=2)
@@ -38,5 +47,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     main(
         member_fp='./out/member.csv',
+        topic_fp='./out/topic.csv',
+        member_topic_fp='./out/member_topic.csv',
         artifact_direc='./out/artifact/member'
     )

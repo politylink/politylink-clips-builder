@@ -2,6 +2,9 @@ import json
 from collections import defaultdict
 
 import ahocorasick
+import pandas as pd
+
+from mylib.artifact import Topic
 
 
 def load_minutes_record(minutes_id):
@@ -97,3 +100,13 @@ def flatten_id_list(df, list_column, flat_column):
     df = df.explode(list_column).rename(columns={list_column: flat_column})
     df[flat_column] = df[flat_column].astype(int)
     return df
+
+
+def load_topic_map(topic_fp):
+    topic_df = pd.read_csv(topic_fp)
+    topic_map = dict()
+    for _, row in topic_df.iterrows():
+        topic_id = row['topic_id']
+        topic = Topic(topic_id=topic_id, title=row['title'], category_id=row['category_id'])
+        topic_map[topic_id] = topic
+    return topic_map

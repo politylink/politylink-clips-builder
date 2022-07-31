@@ -16,17 +16,20 @@ wget https://raw.githubusercontent.com/smartnews-smri/house-of-councillors/main/
 | 　スクリプト                   | 出力                |
 |--------------------------|-------------------|
 | clip.py                  | clip.csv          |
-| minutes.py               | minutes.csv       | 
+| minutes.py               | minutes.csv       |
 | member.py                | member.csv        | 
-| clip_minutes_match.py    | clip_minutes.csv  | 
-| clip_member_match.py     | clip_member.csv   | 
-| clip_gclip_match.py      | clip_gclip.csv    | 
-| clip_clip_match.py       | clip_clip.csv     | 
-| clip_category_match.py   | clip_category.csv | 
+| gclip.py                 | gclip.csv         |
+| topic.py                 | topic.csv         |
+| clip_minutes_match.py    | clip_minutes.csv  |
+| clip_member_match.py     | clip_member.csv   |
+| clip_gclip_match.py      | clip_gclip.csv    |
+| clip_clip_match.py       | clip_clip.csv     |
+| clip_category_match.py   | clip_category.csv |
+| member_topic_match.py    | member_topic.csv  |
 | clip_image.py            | ${clip_id}.jpg    |
 | build_artifact_clip.py   | ${clip_id}.json   | 
-| build_artifact_member.py | ${member_id}.json | 
-| build_artifact_topic.py  | ${topic_id}.json  | 
+| build_artifact_member.py | ${member_id}.json |
+| build_artifact_topic.py  | ${topic_id}.json  |
 
 ## スキーマ
 
@@ -61,17 +64,17 @@ wget https://raw.githubusercontent.com/smartnews-smri/house-of-councillors/main/
 | member_id | ID     | 100　      |
 | name      | 名前     | 田中 太郎     | 
 | yomi      | 読み     | たなか たろう   |
-| group     | 会派     | 各派に属しない議員 |
+| group     | 会派     | 無所属       |
 | block     | 選挙区    | 比例        |
-| tenure    | 任期     |令和4年7月25日|
+| tenure    | 任期     | 令和4年7月25日 |
 
 ### gclip.csv
 
 | カラム | 内容 | 例                     |
-|-------------|---------|-----------------------|
+|-------------|-------|-----------------------|
 | gclip_id | ID | 11464                 |
-| video_id | 審議中継 ID | 6952                  |
-| minutes_id | 会議録 ID | 120814370X01620220607 |
+| video_id | 審議中継ID | 6952                  |
+| minutes_id | 会議録ID | 120814370X01620220607 |
 
 ### clip_minutes.csv
 
@@ -91,11 +94,11 @@ wget https://raw.githubusercontent.com/smartnews-smri/house-of-councillors/main/
 
 ### clip_gclip.csv
 
-| カラム        | 内容       | 例 |
-|------------|----------|-----------|
-| clip_id    | クリップID   | 100 |
-| gclip_id   | Gclip ID | 1000 |
-| start_msec | 開始時間     | 4000000 |
+| カラム        | 内容      | 例 |
+|------------|---------|-----------|
+| clip_id    | クリップID  | 100 |
+| gclip_id   | GclipID | 1000 |
+| start_msec | 開始時間    | 4000000 |
 
 ### clip_clip.csv
 
