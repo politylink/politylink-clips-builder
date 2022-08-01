@@ -89,3 +89,10 @@ class TopicPage:
 class CategoryPage:
     category: Category
     topics: Optional[list] = field(default=None, metadata=config(exclude=lambda x: x is None))
+
+
+@dataclass_json(letter_case=LetterCase.CAMEL)
+@dataclass
+class HomePage:
+    clips: list
+    categories: list
