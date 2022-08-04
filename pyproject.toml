@@ -10,6 +10,8 @@ politylink = "^0.1.90"
 matplotlib = "^3.0.3"
 pyahocorasick = "^1.4.4"
 dataclasses-json = "^0.5.7"
+boto3 = "^1.24.43"
+Pillow = "^9.2.0"
 
 [tool.poetry.dev-dependencies]
 jupyterlab = "^3.4.3"

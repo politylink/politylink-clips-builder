@@ -36,6 +36,7 @@ class Topic:
     topic_id: int
     title: str
     category_id: int
+    description: Optional[str] = field(default=None, metadata=config(exclude=lambda x: not x))
 
 
 @dataclass_json(letter_case=LetterCase.CAMEL)

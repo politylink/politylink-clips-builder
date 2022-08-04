@@ -21,7 +21,7 @@ def main(data_fp, clip_topic_fp, clip_category_fp, out_fp):
                                              clip_count=('category_id', 'count')).reset_index()
     topic_df = pd.merge(topic_df, agg_df, on='topic_id')
 
-    out_df = topic_df[['topic_id', 'title', 'query', 'category_id', 'clip_count']]
+    out_df = topic_df[['topic_id', 'title', 'query', 'category_id', 'clip_count', 'desc']]
     out_df.to_csv(out_fp, index=False)
     LOGGER.info(f'saved {len(out_df)} records to {out_fp}')
 

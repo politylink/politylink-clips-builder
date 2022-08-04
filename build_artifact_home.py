@@ -71,5 +71,5 @@ if __name__ == '__main__':
         clip_fp='./out/clip.csv',
         category_fp='./data/category.csv',
         clip_category_fp='./out/clip_category.csv',
-        artifact_fp='./out/artifact/home.json'
+        artifact_fp='./out/artifact/home/home.json'
     )

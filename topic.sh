@@ -1,4 +1,5 @@
 #!/bin/zsh
+set -eu
 
 python clip_topic_match.py
 python topic.py

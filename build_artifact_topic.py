@@ -4,14 +4,14 @@ from pathlib import Path
 
 import pandas as pd
 
-from mylib.artifact import TopicPage
+from mylib.artifact import TopicPage, Topic
 from mylib.utils import load_topic_map
 
 LOGGER = logging.getLogger(__name__)
 
 
 def main(topic_fp, topic_topic_fp, artifact_direc):
-    topic_df = pd.read_csv(topic_fp)
+    topic_df = pd.read_csv(topic_fp).fillna('')
     topic_topic_df = pd.read_csv(topic_topic_fp)
     topic_df = pd.merge(topic_df, topic_topic_df[['topic_id', 'topic_id_list']], on='topic_id')
     topic_map = load_topic_map(topic_fp)
@@ -19,8 +19,8 @@ def main(topic_fp, topic_topic_fp, artifact_direc):
 
     for _, row in topic_df.iterrows():
         topic_id = row['topic_id']
+        topic = Topic(topic_id=topic_id, title=row['title'], category_id=row['category_id'], description=row['desc'])
         topic_id_list = list(map(int, row['topic_id_list'].split(';')))
-        topic = topic_map[topic_id]
         topics = [topic_map[id_] for id_ in topic_id_list if id_ != topic_id]
         topic_page = TopicPage(
             topic=topic,
