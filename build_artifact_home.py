@@ -8,21 +8,21 @@ from mylib.artifact import HomePage
 LOGGER = logging.getLogger(__name__)
 
 
-def load_clip_page_artifact(clip_id):
-    artifact_fp = f'./out/artifact/clip/{clip_id}.json'
+def load_clip_page_artifact(clip_artifact_direc, clip_id):
+    artifact_fp = f'{clip_artifact_direc}/{clip_id}.json'
     with open(artifact_fp, 'r') as f:
         data = json.load(f)
     return data
 
 
-def load_category_page_artifact(category_id):
-    artifact_fp = f'./out/artifact/category/{category_id}.json'
+def load_category_page_artifact(category_artifact_direc, category_id):
+    artifact_fp = f'{category_artifact_direc}/{category_id}.json'
     with open(artifact_fp, 'r') as f:
         data = json.load(f)
     return data
 
 
-def main(clip_fp, category_fp, clip_category_fp, artifact_fp):
+def main(clip_fp, category_fp, clip_category_fp, clip_artifact_direc, category_artifact_direc, artifact_fp):
     clip_df = pd.read_csv(clip_fp)
     category_df = pd.read_csv(category_fp)
 
@@ -36,12 +36,12 @@ def main(clip_fp, category_fp, clip_category_fp, artifact_fp):
     headline_id_set = set(headline_id_list)
     clips = []
     for clip_id in headline_id_list:
-        clip_page = load_clip_page_artifact(clip_id)
+        clip_page = load_clip_page_artifact(clip_artifact_direc, clip_id)
         clips.append(clip_page['clip'])
 
     category_pages = []
     for category_id in category_df['category_id']:
-        category_page = load_category_page_artifact(category_id)
+        category_page = load_category_page_artifact(category_artifact_direc, category_id)
 
         category_clips = []
         sub_df = clip_df[clip_df['category_id'] == category_id]
@@ -50,7 +50,7 @@ def main(clip_fp, category_fp, clip_category_fp, artifact_fp):
                 break
             if clip_id in headline_id_set:  # avoid using the same clip multiple times
                 continue
-            clip_page = load_clip_page_artifact(clip_id)
+            clip_page = load_clip_page_artifact(clip_artifact_direc, clip_id)
             category_clips.append(clip_page['clip'])
 
         category_page['clips'] = category_clips
@@ -71,5 +71,7 @@ if __name__ == '__main__':
         clip_fp='./out/clip.csv',
         category_fp='./data/category.csv',
         clip_category_fp='./out/clip_category.csv',
+        clip_artifact_direc='./out/artifact/clip',
+        category_artifact_direc='./out/artifact/category',
         artifact_fp='./out/artifact/home/home.json'
     )

@@ -13,23 +13,39 @@ wget https://raw.githubusercontent.com/smartnews-smri/house-of-councillors/main/
 
 ## データの生成
 
-| 　スクリプト                   | 出力                |
-|--------------------------|-------------------|
-| clip.py                  | clip.csv          |
-| minutes.py               | minutes.csv       |
-| member.py                | member.csv        | 
-| gclip.py                 | gclip.csv         |
-| topic.py                 | topic.csv         |
-| clip_minutes_match.py    | clip_minutes.csv  |
-| clip_member_match.py     | clip_member.csv   |
-| clip_gclip_match.py      | clip_gclip.csv    |
-| clip_clip_match.py       | clip_clip.csv     |
-| clip_category_match.py   | clip_category.csv |
-| member_topic_match.py    | member_topic.csv  |
-| clip_image.py            | ${clip_id}.jpg    |
-| build_artifact_clip.py   | ${clip_id}.json   | 
-| build_artifact_member.py | ${member_id}.json |
-| build_artifact_topic.py  | ${topic_id}.json  |
+### 基本データ
+
+| 　スクリプト                     | 出力                  | 依存                        |
+|----------------------------|---------------------|---------------------------|
+| clip.py                    | clip.csv            |                           |
+| minutes.py                 | minutes.csv         |                           |
+| member.py                  | member.csv          |                           | 
+| gclip.py                   | gclip.csv           |                           |
+| topic.py                   | topic.csv           | clip_topic, clip_category |
+
+### 中間データ
+
+| 　スクリプト                     | 出力                  | 依存                        |
+|----------------------------|---------------------|---------------------------|
+| clip_topic_match.py        | clip_topic.csv      |                           |
+| clip_category_match.py     | clip_category.csv   |                           |
+| clip_minutes_match.py      | clip_minutes.csv    |                           |
+| clip_member_match.py       | clip_member.csv     |                           |
+| clip_gclip_match.py        | clip_gclip.csv      | clip_minutes              |
+| clip_clip_match.py         | clip_clip.csv       | clip_minutes              |
+| member_topic_match.py      | member_topic.csv    | clip_topic, clip_member   |
+| topic_topic_match.py       | topic_topic.csv     | clip_topic                |
+
+### 最終データ
+
+| 　スクリプト                     | 出力                  | 依存                               |
+|----------------------------|---------------------|----------------------------------|
+| build_artifact_clip.py     | ${clip_id}.json     |                                  | 
+| build_artifact_member.py   | ${member_id}.json   |                                  |
+| build_artifact_topic.py    | ${topic_id}.json    |                                  |
+| build_artifact_category.py | ${category_id}.json |                                  |
+| build_artifact_home.py     | home.json           | artifact_clip, artifact_category |
+| clip_image.py              | ${clip_id}.jpg      |                                  | 
 
 ## スキーマ
 

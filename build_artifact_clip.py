@@ -1,5 +1,6 @@
 import json
 import logging
+import shutil
 from logging import getLogger
 from pathlib import Path
 
@@ -117,6 +118,8 @@ def main(clip_fp, member_fp, topic_fp,
         clip_page.clips = similar_clips
     LOGGER.info(f'enriched {len(clip_page_map)} with similar clips')
 
+    shutil.rmtree(artifact_direc, ignore_errors=True)
+    Path(artifact_direc).mkdir(parents=True)
     for clip_id, clip_page in clip_page_map.items():
         artifact_fp = Path(artifact_direc) / '{}.json'.format(clip_id)
         with open(artifact_fp, 'w') as f:

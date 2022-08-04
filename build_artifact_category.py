@@ -1,5 +1,6 @@
 import json
 import logging
+import shutil
 from pathlib import Path
 
 import pandas as pd
@@ -19,6 +20,8 @@ def main(category_fp, topic_fp, artifact_direc):
     topic_map = load_topic_map(topic_fp)
     LOGGER.info(f'loaded {len(category_df)} categories')
 
+    shutil.rmtree(artifact_direc, ignore_errors=True)
+    Path(artifact_direc).mkdir(parents=True)
     for _, row in category_df.iterrows():
         category_id = row['category_id']
         category = Category(

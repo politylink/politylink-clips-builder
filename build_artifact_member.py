@@ -1,5 +1,6 @@
 import json
 import logging
+import shutil
 from pathlib import Path
 
 import pandas as pd
@@ -18,6 +19,8 @@ def main(member_fp, topic_fp, member_topic_fp, artifact_direc):
     topic_map = load_topic_map(topic_fp)
     LOGGER.info(f'loaded {len(member_df)} members')
 
+    shutil.rmtree(artifact_direc, ignore_errors=True)
+    Path(artifact_direc).mkdir(parents=True)
     for _, row in member_df.iterrows():
         member_id = row['member_id']
         member = Member(
