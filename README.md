@@ -45,7 +45,11 @@ wget https://raw.githubusercontent.com/smartnews-smri/house-of-councillors/main/
 | build_artifact_topic.py    | ${topic_id}.json    |                                  |
 | build_artifact_category.py | ${category_id}.json |                                  |
 | build_artifact_home.py     | home.json           | artifact_clip, artifact_category |
-| clip_image.py              | ${clip_id}.jpg      |                                  | 
+
+| 　スクリプト          | 出力               | 依存                               |
+|-----------------|------------------|----------------------------------|
+| clip_image.py   | ${clip_id}.jpg   |                                  | 
+| member_image.py | ${member_id}.jpg |                                  | 
 
 ## スキーマ
 

@@ -79,7 +79,6 @@ def main(clip_fp, member_fp, topic_fp,
             name=row['name'],
             group=row['group'],
             block=row['block'],
-            image_url=row['image_url']
         )
         clip = Clip(
             clip_id=row['clip_id'],

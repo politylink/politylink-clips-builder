@@ -27,7 +27,6 @@ class Member:
     block: str
     summary: Optional[str] = field(default=None, metadata=config(exclude=lambda x: x is None))
     ref_url: Optional[str] = field(default=None, metadata=config(exclude=lambda x: x is None))
-    image_url: Optional[str] = field(default=None, metadata=config(exclude=lambda x: x is None))
 
 
 @dataclass_json(letter_case=LetterCase.CAMEL)

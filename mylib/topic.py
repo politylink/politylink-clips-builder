@@ -18,6 +18,10 @@ class Topic:
 
 def is_match(query, text):
     for item in query.split(';'):
+        item = item.strip()
+        if not item:
+            continue
+
         match = True
         for phrase in item.split():
             if phrase not in text:

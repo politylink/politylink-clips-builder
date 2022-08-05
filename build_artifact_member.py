@@ -29,8 +29,7 @@ def main(member_fp, topic_fp, member_topic_fp, artifact_direc):
             group=row['group'],
             block=row['block'],
             summary=row['summary'],
-            ref_url=row['ref_url'],
-            image_url=row['image_url']
+            ref_url=row['ref_url']
         )
         member_page = MemberPage(
             member=member
